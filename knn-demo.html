@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive KNN Classification Demo</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Open Sans', 'Helvetica Neue', Arial, sans-serif;
+            background: #f8f9fa;
+            color: #2c3e50;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+            max-width: 800px;
+        }
+
+        h1 {
+            font-family: 'Open Sans', 'Helvetica Neue', Arial, sans-serif;
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: #6c757d;
+            font-weight: 400;
+        }
+
+        #canvasContainer {
+            background: white;
+            border-radius: 4px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            border: 1px solid #dee2e6;
+            margin-bottom: 2rem;
+        }
+
+        #controls {
+            background: white;
+            border-radius: 4px;
+            padding: 1.5rem;
+            max-width: 800px;
+            width: 100%;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            border: 1px solid #dee2e6;
+        }
+
+        .control-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .control-group:last-child {
+            margin-bottom: 0;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+            color: #495057;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: #e9ecef;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #0173B2;
+            cursor: pointer;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #0173B2;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        .value-display {
+            display: inline-block;
+            background: #e7f3ff;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-weight: 700;
+            color: #0173B2;
+            margin-left: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        button {
+            background: #0173B2;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(1, 115, 178, 0.2);
+        }
+
+        button:hover {
+            background: #015a8e;
+            box-shadow: 0 2px 6px rgba(1, 115, 178, 0.3);
+        }
+
+        button:active {
+            transform: translateY(1px);
+        }
+
+        .legend {
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .legend-symbol {
+            width: 16px;
+            height: 16px;
+            border: 2px solid;
+        }
+
+        .instructions {
+            background: #e7f3ff;
+            border-left: 3px solid #0173B2;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #495057;
+        }
+
+        .instructions strong {
+            color: #0173B2;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            body {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>K-Nearest Neighbors</h1>
+        <p class="subtitle">An Interactive Classification Algorithm Demo</p>
+    </header>
+
+    <div id="canvasContainer"></div>
+
+    <div id="controls">
+        <div class="instructions">
+            <strong>Click anywhere</strong> on the canvas to place a test point and watch the KNN algorithm classify it in real-time!
+        </div>
+
+        <div class="control-group">
+            <label>
+                K Value (Number of Neighbors)
+                <span class="value-display" id="kValue">3</span>
+            </label>
+            <input type="range" id="kSlider" min="1" max="9" value="3" step="2">
+        </div>
+
+        <div class="control-group">
+            <button id="resetBtn">Reset & Generate New Data</button>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-symbol" style="background: #0173B2; border-color: #0173B2; border-radius: 50%;"></div>
+                <span>Class A (Circle)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-symbol" style="background: #DE8F05; border-color: #DE8F05;"></div>
+                <span>Class B (Square)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-symbol" style="background: #029E73; border-color: #029E73; clip-path: polygon(50% 0%, 100% 100%, 0% 100%);"></div>
+                <span>Class C (Triangle)</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Colorblind-friendly palette from Wong (2011) - verified for deuteranopia and protanopia
+        const COLORS = {
+            blue: '#0173B2',      // Class A - Circle
+            orange: '#DE8F05',    // Class B - Square
+            green: '#029E73'      // Class C - Triangle
+        };
+
+        let dataPoints = [];
+        let k = 3;
+        let animatingPoint = null;
+        let animationRadius = 0;
+        let nearestNeighbors = [];
+        let classificationResult = null;
+        const ANIMATION_SPEED = 3;
+        let pulseOffset = 0; // For pulsing animation
+
+        function setup() {
+            let canvas = createCanvas(800, 600);
+            canvas.parent('canvasContainer');
+            generateData();
+            
+            // Setup controls
+            document.getElementById('kSlider').addEventListener('input', (e) => {
+                k = parseInt(e.target.value);
+                document.getElementById('kValue').textContent = k;
+                if (animatingPoint) {
+                    animatingPoint = null;
+                }
+            });
+            
+            document.getElementById('resetBtn').addEventListener('click', () => {
+                generateData();
+                animatingPoint = null;
+                animationRadius = 0;
+                nearestNeighbors = [];
+                classificationResult = null;
+            });
+        }
+
+        function generateData() {
+            dataPoints = [];
+            
+            // Class A - Moved up and to the left, but still distinct
+            for (let i = 0; i < 30; i++) {
+                dataPoints.push({
+                    x: random(400, 650),  // Moved left from 500-750 to 400-650
+                    y: random(50, 300),   // Moved up from 150-400 to 50-300
+                    class: 'A',
+                    color: COLORS.blue,
+                    shape: 'circle'
+                });
+            }
+            
+            // Class B - Centered around (220, 250) with large spread - moved up from 300
+            for (let i = 0; i < 30; i++) {
+                let x = randomGaussian(220, 80);
+                let y = randomGaussian(250, 80);
+                dataPoints.push({
+                    x: constrain(x, 50, 450),
+                    y: constrain(y, 80, 500),
+                    class: 'B',
+                    color: COLORS.orange,
+                    shape: 'square'
+                });
+            }
+            
+            // Class C - Centered around (240, 370) - overlapping with B but more separated
+            for (let i = 0; i < 30; i++) {
+                let x = randomGaussian(240, 75);
+                let y = randomGaussian(370, 75);
+                dataPoints.push({
+                    x: constrain(x, 50, 450),
+                    y: constrain(y, 200, 550),
+                    class: 'C',
+                    color: COLORS.green,
+                    shape: 'triangle'
+                });
+            }
+        }
+
+        function draw() {
+            background(255);
+            
+            // Draw grid
+            stroke(230, 230, 230);
+            strokeWeight(1);
+            for (let i = 0; i < width; i += 50) {
+                line(i, 0, i, height);
+            }
+            for (let i = 0; i < height; i += 50) {
+                line(0, i, width, i);
+            }
+            
+            // Draw quadrant lines
+            stroke(200, 200, 200);
+            strokeWeight(1.5);
+            line(width/2, 0, width/2, height);
+            line(0, height/2, width, height/2);
+            
+            // Draw all data points
+            for (let point of dataPoints) {
+                drawPoint(point.x, point.y, point.shape, point.color, 10);
+            }
+            
+            // Animate KNN search if a point was clicked
+            if (animatingPoint) {
+                animateKNN();
+            }
+        }
+
+        function drawPoint(x, y, shape, color, size) {
+            fill(color);
+            stroke(color);
+            strokeWeight(2);
+            
+            if (shape === 'circle') {
+                ellipse(x, y, size, size);
+            } else if (shape === 'square') {
+                rectMode(CENTER);
+                rect(x, y, size, size);
+            } else if (shape === 'triangle') {
+                let h = size;
+                triangle(x, y - h/2, x - h/2, y + h/2, x + h/2, y + h/2);
+            }
+        }
+
+        function animateKNN() {
+            // Update pulse for animation - doubled speed from 0.05 to 0.1
+            pulseOffset += 0.1;
+            let pulse = sin(pulseOffset) * 0.5 + 0.5; // Oscillates between 0 and 1
+            
+            // Find points within current radius
+            let pointsInRadius = [];
+            for (let point of dataPoints) {
+                let d = dist(animatingPoint.x, animatingPoint.y, point.x, point.y);
+                if (d <= animationRadius) {
+                    pointsInRadius.push({ point, distance: d });
+                }
+            }
+            
+            // Sort by distance and take k nearest
+            pointsInRadius.sort((a, b) => a.distance - b.distance);
+            nearestNeighbors = pointsInRadius.slice(0, k);
+            
+            // Only continue expanding if we haven't found k neighbors yet
+            let hasKNeighbors = nearestNeighbors.length >= k;
+            
+            // Draw expanding circle (only if still searching)
+            if (!hasKNeighbors) {
+                noFill();
+                stroke(150, 150, 150, 100);
+                strokeWeight(2);
+                ellipse(animatingPoint.x, animatingPoint.y, animationRadius * 2, animationRadius * 2);
+            } else {
+                // Draw static circle at final radius when k neighbors found
+                noFill();
+                stroke(150, 150, 150, 150);
+                strokeWeight(2);
+                let maxDist = nearestNeighbors[nearestNeighbors.length - 1].distance;
+                ellipse(animatingPoint.x, animatingPoint.y, maxDist * 2, maxDist * 2);
+            }
+            
+            // Check if we have k neighbors for voting
+            if (hasKNeighbors) {
+                // Count votes
+                let votes = { 'A': 0, 'B': 0, 'C': 0 };
+                let classSums = { 'A': 0, 'B': 0, 'C': 0 };
+                
+                for (let neighbor of nearestNeighbors) {
+                    votes[neighbor.point.class]++;
+                    classSums[neighbor.point.class] += neighbor.distance;
+                }
+                
+                // Determine winner - if tied, use sum of distances (smaller is better)
+                let maxVotes = Math.max(votes.A, votes.B, votes.C);
+                let tiedClasses = Object.keys(votes).filter(key => votes[key] === maxVotes);
+                
+                let winner;
+                let isTied = tiedClasses.length > 1;
+                
+                if (isTied) {
+                    // Tie-breaking: use class with smallest sum of distances
+                    winner = tiedClasses.reduce((best, current) => 
+                        classSums[current] < classSums[best] ? current : best
+                    );
+                } else {
+                    winner = tiedClasses[0];
+                }
+                
+                // Draw distance lines if there's a tie
+                if (isTied) {
+                    for (let neighbor of nearestNeighbors) {
+                        // Determine if this class won the tie-breaker
+                        let isWinningClass = neighbor.point.class === winner;
+                        
+                        // Draw line
+                        if (isWinningClass) {
+                            stroke(neighbor.point.color);
+                            strokeWeight(1.5);
+                        } else {
+                            stroke(150, 150, 150, 120);
+                            strokeWeight(1);
+                        }
+                        line(animatingPoint.x, animatingPoint.y, neighbor.point.x, neighbor.point.y);
+                        
+                        // Draw distance label at midpoint
+                        let midX = (animatingPoint.x + neighbor.point.x) / 2;
+                        let midY = (animatingPoint.y + neighbor.point.y) / 2;
+                        
+                        // Calculate slight offset perpendicular to line for label positioning
+                        let angle = atan2(neighbor.point.y - animatingPoint.y, neighbor.point.x - animatingPoint.x);
+                        let offsetX = cos(angle + PI/2) * 8;
+                        let offsetY = sin(angle + PI/2) * 8;
+                        
+                        // Draw small background for distance text
+                        textSize(9);
+                        textFont('Open Sans');
+                        let distText = neighbor.distance.toFixed(0);
+                        let txtW = textWidth(distText);
+                        
+                        fill(255, 255, 255, 200);
+                        noStroke();
+                        rectMode(CENTER);
+                        rect(midX + offsetX, midY + offsetY, txtW + 6, 14, 2);
+                        
+                        // Draw distance text
+                        if (isWinningClass) {
+                            fill(neighbor.point.color);
+                        } else {
+                            fill(100, 100, 100, 180);
+                        }
+                        textAlign(CENTER, CENTER);
+                        text(distText, midX + offsetX, midY + offsetY);
+                    }
+                }
+                
+                // Get color and shape for winner
+                let resultColor, resultShape;
+                if (winner === 'A') {
+                    resultColor = COLORS.blue;
+                    resultShape = 'circle';
+                } else if (winner === 'B') {
+                    resultColor = COLORS.orange;
+                    resultShape = 'square';
+                } else {
+                    resultColor = COLORS.green;
+                    resultShape = 'triangle';
+                }
+                
+                // Draw classified test point
+                drawPoint(animatingPoint.x, animatingPoint.y, resultShape, resultColor, 16);
+            }
+            
+            // Highlight nearest neighbors with pulsing glow effect - draw BEHIND the original points
+            for (let neighbor of nearestNeighbors) {
+                let col = color(neighbor.point.color);
+                
+                // Draw multiple layers of increasing size and decreasing opacity for glow effect
+                // Use pulse to gently vary the size and opacity
+                // Shifted range: pulse goes 0-1, we map it to 0.75-1.2 for higher minimum
+                let pulseRange = 0.75 + (pulse * 0.45); // Oscillates between 0.75 and 1.2
+                
+                for (let i = 2; i >= 0; i--) {
+                    let baseSize = 14 + (i * 2.5);
+                    let glowSize = baseSize * pulseRange; // Apply pulse to entire size
+                    let baseAlpha = 40 - (i * 10);
+                    let glowAlpha = baseAlpha * pulseRange; // Apply pulse to opacity too
+                    col.setAlpha(glowAlpha);
+                    fill(col);
+                    noStroke();
+                    
+                    if (neighbor.point.shape === 'circle') {
+                        ellipse(neighbor.point.x, neighbor.point.y, glowSize, glowSize);
+                    } else if (neighbor.point.shape === 'square') {
+                        rectMode(CENTER);
+                        rect(neighbor.point.x, neighbor.point.y, glowSize, glowSize);
+                    } else if (neighbor.point.shape === 'triangle') {
+                        let h = glowSize;
+                        triangle(
+                            neighbor.point.x, neighbor.point.y - h/2,
+                            neighbor.point.x - h/2, neighbor.point.y + h/2,
+                            neighbor.point.x + h/2, neighbor.point.y + h/2
+                        );
+                    }
+                }
+                
+                // Draw the point itself slightly larger
+                drawPoint(neighbor.point.x, neighbor.point.y, neighbor.point.shape, neighbor.point.color, 12);
+            }
+            
+            // Continue expanding only if we don't have k neighbors yet
+            if (!hasKNeighbors) {
+                animationRadius += ANIMATION_SPEED;
+            }
+        }
+
+        function mousePressed() {
+            // Check if click is within canvas
+            if (mouseX >= 0 && mouseX <= width && mouseY >= 0 && mouseY <= height) {
+                animatingPoint = { x: mouseX, y: mouseY };
+                animationRadius = 0;
+                nearestNeighbors = [];
+            }
+        }
+    </script>
+</body>
+</html>
