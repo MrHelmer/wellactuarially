@@ -77,7 +77,7 @@
             
             let canvas = createCanvas(canvasWidth, canvasHeight);
             canvas.parent('canvasContainer');
-            generateData();
+            // Don't generate data here - let draw() do it when ready
             
             // Setup controls
             document.getElementById('kSlider').addEventListener('input', (e) => {
@@ -183,8 +183,9 @@
                 background(19, 21, 23);
             }
             
-            // If dataPoints is empty and canvas is ready, generate data
-            if (dataPoints.length === 0 && width > 0 && height > 0) {
+            // If dataPoints is empty and canvas is properly sized, generate data
+            // Wait for canvas to be at least 200x150 to avoid generating with default 100x100
+            if (dataPoints.length === 0 && width >= 200 && height >= 150) {
                 generateData();
             }
             
