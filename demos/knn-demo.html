@@ -150,8 +150,8 @@
                 let x = randomGaussian(220 * scaleX, 80 * scaleX);
                 let y = randomGaussian(250 * scaleY, 80 * scaleY);
                 dataPoints.push({
-                    x: constrain(x, 50 * scaleX, 450 * scaleX),
-                    y: constrain(y, 80 * scaleY, 500 * scaleY),
+                    x: constrain(x, 0, width),
+                    y: constrain(y, 0, height),
                     class: 'B',
                     color: COLORS.orange,
                     shape: 'square'
@@ -163,8 +163,8 @@
                 let x = randomGaussian(240 * scaleX, 75 * scaleX);
                 let y = randomGaussian(370 * scaleY, 75 * scaleY);
                 dataPoints.push({
-                    x: constrain(x, 50 * scaleX, 450 * scaleX),
-                    y: constrain(y, 200 * scaleY, 550 * scaleY),
+                    x: constrain(x, 0, width),
+                    y: constrain(y, 0, height),
                     class: 'C',
                     color: COLORS.green,
                     shape: 'triangle'
@@ -181,6 +181,11 @@
             } else {
                 // Use dark background as fallback
                 background(19, 21, 23);
+            }
+            
+            // If dataPoints is empty and canvas is ready, generate data
+            if (dataPoints.length === 0 && width > 0 && height > 0) {
+                generateData();
             }
             
             // Adjust grid colors based on background brightness
