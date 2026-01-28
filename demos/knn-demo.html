@@ -77,7 +77,11 @@
             
             let canvas = createCanvas(canvasWidth, canvasHeight);
             canvas.parent('canvasContainer');
-            // Don't generate data here - let draw() do it when ready
+            
+            // Small delay to ensure canvas dimensions are fully initialized
+            setTimeout(() => {
+                generateData();
+            }, 50);
             
             // Setup controls
             document.getElementById('kSlider').addEventListener('input', (e) => {
@@ -181,12 +185,6 @@
             } else {
                 // Use dark background as fallback
                 background(19, 21, 23);
-            }
-            
-            // If dataPoints is empty and canvas is properly sized, generate data
-            // Wait for canvas to be at least 200x150 to avoid generating with default 100x100
-            if (dataPoints.length === 0 && width >= 200 && height >= 150) {
-                generateData();
             }
             
             // Adjust grid colors based on background brightness
