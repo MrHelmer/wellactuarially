@@ -173,12 +173,11 @@
         }
 
         function draw() {
-            // Check for dark mode
-            let isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-            background(isDarkMode ? 19 : 255, isDarkMode ? 21 : 255, isDarkMode ? 23 : 255);
+            // Use dark background for the demo
+            background(19, 21, 23);
             
             // Draw grid
-            stroke(isDarkMode ? 50 : 230, isDarkMode ? 50 : 230, isDarkMode ? 50 : 230);
+            stroke(50, 50, 50);
             strokeWeight(1);
             for (let i = 0; i < width; i += 50) {
                 line(i, 0, i, height);
@@ -188,7 +187,7 @@
             }
             
             // Draw quadrant lines
-            stroke(isDarkMode ? 80 : 200, isDarkMode ? 80 : 200, isDarkMode ? 80 : 200);
+            stroke(80, 80, 80);
             strokeWeight(1.5);
             line(width/2, 0, width/2, height);
             line(0, height/2, width, height/2);
