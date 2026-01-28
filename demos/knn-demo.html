@@ -134,8 +134,6 @@
             let scaleX = width / 800;
             let scaleY = height / 600;
             
-            console.log(`Generating data with canvas size: ${width}x${height}, scale: ${scaleX}x${scaleY}`);
-            
             // Class A - Moved up and to the left, but still distinct
             for (let i = 0; i < 30; i++) {
                 dataPoints.push({
@@ -151,7 +149,6 @@
             for (let i = 0; i < 30; i++) {
                 let x = randomGaussian(220 * scaleX, 80 * scaleX);
                 let y = randomGaussian(250 * scaleY, 80 * scaleY);
-                // Add 10% margin to prevent all points clustering at edges
                 let margin = 10;
                 dataPoints.push({
                     x: constrain(x, margin, width - margin),
@@ -166,7 +163,6 @@
             for (let i = 0; i < 30; i++) {
                 let x = randomGaussian(240 * scaleX, 75 * scaleX);
                 let y = randomGaussian(370 * scaleY, 75 * scaleY);
-                // Add 10% margin to prevent all points clustering at edges
                 let margin = 10;
                 dataPoints.push({
                     x: constrain(x, margin, width - margin),
@@ -179,21 +175,11 @@
         }
 
         function draw() {
-            // Try to inherit background from theme, fallback to dark
-            let bgColor = getComputedStyle(document.body).getPropertyValue('--bg-color').trim();
-            if (bgColor && bgColor !== '') {
-                // Parse CSS color - simplified for common formats
-                background(bgColor);
-            } else {
-                // Use dark background as fallback
-                background(19, 21, 23);
-            }
+            // Use dark background with fallback
+            background(19, 21, 23);
             
-            // Adjust grid colors based on background brightness
-            let isDark = brightness(get(0, 0)) < 128;
-            
-            // Draw grid
-            stroke(isDark ? 50 : 230, isDark ? 50 : 230, isDark ? 50 : 230);
+            // Draw grid with dark theme colors
+            stroke(50, 50, 50);
             strokeWeight(1);
             for (let i = 0; i < width; i += 50) {
                 line(i, 0, i, height);
@@ -203,7 +189,7 @@
             }
             
             // Draw quadrant lines
-            stroke(isDark ? 80 : 200, isDark ? 80 : 200, isDark ? 80 : 200);
+            stroke(80, 80, 80);
             strokeWeight(1.5);
             line(width/2, 0, width/2, height);
             line(0, height/2, width, height/2);
