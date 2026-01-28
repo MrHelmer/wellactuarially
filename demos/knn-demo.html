@@ -35,15 +35,15 @@
         <div class="legend">
             <div class="legend-item">
                 <div class="legend-symbol" style="background: #0173B2; border-color: #0173B2; border-radius: 50%;"></div>
-                <span>Class A (Circle)</span>
+                <span>Class A</span>
             </div>
             <div class="legend-item">
                 <div class="legend-symbol" style="background: #DE8F05; border-color: #DE8F05;"></div>
-                <span>Class B (Square)</span>
+                <span>Class B</span>
             </div>
             <div class="legend-item">
                 <div class="legend-symbol" style="background: #029E73; border-color: #029E73; clip-path: polygon(50% 0%, 100% 100%, 0% 100%);"></div>
-                <span>Class C (Triangle)</span>
+                <span>Class C</span>
             </div>
         </div>
     </div>
@@ -173,11 +173,21 @@
         }
 
         function draw() {
-            // Use dark background for the demo
-            background(19, 21, 23);
+            // Try to inherit background from theme, fallback to dark
+            let bgColor = getComputedStyle(document.body).getPropertyValue('--bg-color').trim();
+            if (bgColor && bgColor !== '') {
+                // Parse CSS color - simplified for common formats
+                background(bgColor);
+            } else {
+                // Use dark background as fallback
+                background(19, 21, 23);
+            }
+            
+            // Adjust grid colors based on background brightness
+            let isDark = brightness(get(0, 0)) < 128;
             
             // Draw grid
-            stroke(50, 50, 50);
+            stroke(isDark ? 50 : 230, isDark ? 50 : 230, isDark ? 50 : 230);
             strokeWeight(1);
             for (let i = 0; i < width; i += 50) {
                 line(i, 0, i, height);
@@ -187,7 +197,7 @@
             }
             
             // Draw quadrant lines
-            stroke(80, 80, 80);
+            stroke(isDark ? 80 : 200, isDark ? 80 : 200, isDark ? 80 : 200);
             strokeWeight(1.5);
             line(width/2, 0, width/2, height);
             line(0, height/2, width, height/2);
