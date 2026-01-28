@@ -225,7 +225,8 @@
                 rect(x, y, size, size);
             } else if (shape === 'triangle') {
                 let h = size;
-                triangle(x, y - h/2, x - h/2, y + h/2, x + h/2, y + h/2);
+                // Adjust for triangle centroid (1/3 from base)
+                triangle(x, y - 2*h/3, x - h/2, y + h/3, x + h/2, y + h/3);
             }
         }
 
@@ -381,10 +382,11 @@
                         rect(neighbor.point.x, neighbor.point.y, glowSize, glowSize);
                     } else if (neighbor.point.shape === 'triangle') {
                         let h = glowSize;
+                        // Adjust for triangle centroid (1/3 from base)
                         triangle(
-                            neighbor.point.x, neighbor.point.y - h/2,
-                            neighbor.point.x - h/2, neighbor.point.y + h/2,
-                            neighbor.point.x + h/2, neighbor.point.y + h/2
+                            neighbor.point.x, neighbor.point.y - 2*h/3,
+                            neighbor.point.x - h/2, neighbor.point.y + h/3,
+                            neighbor.point.x + h/2, neighbor.point.y + h/3
                         );
                     }
                 }
