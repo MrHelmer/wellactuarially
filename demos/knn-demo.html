@@ -77,7 +77,12 @@
             
             let canvas = createCanvas(canvasWidth, canvasHeight);
             canvas.parent('canvasContainer');
-            generateData();
+            
+            // Delay to let iframe dimensions settle before generating data
+            // This prevents issues where the canvas gets resized immediately after setup
+            setTimeout(() => {
+                generateData();
+            }, 150);
             
             // Setup controls
             document.getElementById('kSlider').addEventListener('input', (e) => {
