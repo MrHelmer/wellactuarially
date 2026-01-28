@@ -10,8 +10,8 @@
 
 body {
     font-family: 'Bree Serif', serif;
-    background: #131517;
-    color: #ffffff;
+    background: var(--bg-color, #131517);
+    color: var(--text-color, #ffffff);
     min-height: 100vh;
     display: flex;
     flex-direction: column;
@@ -29,14 +29,14 @@ h1 {
     font-family: 'Bree Serif', serif;
     font-size: 2.5rem;
     font-weight: 700;
-    color: #ffffff;
+    color: var(--text-color, #ffffff);
     margin-bottom: 0.5rem;
     letter-spacing: -0.02em;
 }
 
 .subtitle {
     font-size: 1.1rem;
-    color: #cccccc;
+    color: var(--text-muted, #cccccc);
     font-weight: 400;
 }
 
@@ -72,7 +72,7 @@ label {
     font-weight: 600;
     margin-bottom: 0.5rem;
     font-size: 0.95rem;
-    color: #ffffff;
+    color: var(--text-color, #ffffff);
 }
 
 input[type="range"] {
@@ -150,7 +150,7 @@ button:active {
     align-items: center;
     gap: 0.5rem;
     font-size: 0.9rem;
-    color: #ffffff;
+    color: var(--text-color, #ffffff);
 }
 
 .legend-symbol {
@@ -161,17 +161,16 @@ button:active {
 
 .instructions {
     background: rgba(255, 255, 255, 0.08);
-    border-left: 3px solid #ffffff;
+    border-left: 3px solid rgba(255, 255, 255, 0.5);
     padding: 1rem;
     border-radius: 4px;
     margin-bottom: 1.5rem;
     font-size: 0.95rem;
     line-height: 1.6;
-    color: #ffffff;
+    color: inherit;
 }
 
 .instructions strong {
-    color: #ffffff;
     font-weight: 600;
 }
 
