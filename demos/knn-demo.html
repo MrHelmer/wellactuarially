@@ -35,15 +35,15 @@
         <div class="legend">
             <div class="legend-item">
                 <div class="legend-symbol" style="background: #0173B2; border-color: #0173B2; border-radius: 50%;"></div>
-                <span>Class A</span>
+                <span>Class A (Circle)</span>
             </div>
             <div class="legend-item">
                 <div class="legend-symbol" style="background: #DE8F05; border-color: #DE8F05;"></div>
-                <span>Class B</span>
+                <span>Class B (Square)</span>
             </div>
             <div class="legend-item">
                 <div class="legend-symbol" style="background: #029E73; border-color: #029E73; clip-path: polygon(50% 0%, 100% 100%, 0% 100%);"></div>
-                <span>Class C</span>
+                <span>Class C (Triangle)</span>
             </div>
         </div>
     </div>
@@ -99,6 +99,9 @@
         
         // Redraw canvas on window resize
         function windowResized() {
+            let oldWidth = width;
+            let oldHeight = height;
+            
             let canvasWidth = min(800, windowWidth - 40);
             let canvasHeight = min(600, windowHeight * 0.6);
             
@@ -107,11 +110,21 @@
             }
             
             resizeCanvas(canvasWidth, canvasHeight);
-            // Regenerate data to fit new canvas size
-            generateData();
-            animatingPoint = null;
-            animationRadius = 0;
-            nearestNeighbors = [];
+            
+            // Scale existing data points instead of regenerating
+            let scaleX = width / oldWidth;
+            let scaleY = height / oldHeight;
+            
+            for (let point of dataPoints) {
+                point.x *= scaleX;
+                point.y *= scaleY;
+            }
+            
+            // Scale animating point if it exists
+            if (animatingPoint) {
+                animatingPoint.x *= scaleX;
+                animatingPoint.y *= scaleY;
+            }
         }
 
         function generateData() {
