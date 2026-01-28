@@ -1,2 +1,2 @@
-# knn-demo
-A demonstration of k-nearest neighbors.
+# Demos
+Here I keep demos for my blog, wellactuarially.com.
