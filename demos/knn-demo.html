@@ -78,10 +78,17 @@
             let canvas = createCanvas(canvasWidth, canvasHeight);
             canvas.parent('canvasContainer');
             
-            // Small delay to ensure canvas dimensions are fully initialized
-            setTimeout(() => {
+            // Try to generate data with retries if canvas isn't ready
+            let attempts = 0;
+            const tryGenerate = () => {
+                attempts++;
                 generateData();
-            }, 50);
+                // If data wasn't generated (canvas not ready), try again
+                if (dataPoints.length === 0 && attempts < 5) {
+                    setTimeout(tryGenerate, 100);
+                }
+            };
+            setTimeout(tryGenerate, 100);
             
             // Setup controls
             document.getElementById('kSlider').addEventListener('input', (e) => {
@@ -133,6 +140,13 @@
 
         function generateData() {
             dataPoints = [];
+            
+            // Don't generate if canvas dimensions are invalid or too small
+            // This prevents issues during initial page load
+            if (width < 200 || height < 150) {
+                console.log('Canvas not ready, skipping data generation');
+                return;
+            }
             
             // Scale positions based on canvas size
             let scaleX = width / 800;
