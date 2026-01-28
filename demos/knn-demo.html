@@ -77,18 +77,7 @@
             
             let canvas = createCanvas(canvasWidth, canvasHeight);
             canvas.parent('canvasContainer');
-            
-            // Try to generate data with retries if canvas isn't ready
-            let attempts = 0;
-            const tryGenerate = () => {
-                attempts++;
-                generateData();
-                // If data wasn't generated (canvas not ready), try again
-                if (dataPoints.length === 0 && attempts < 5) {
-                    setTimeout(tryGenerate, 100);
-                }
-            };
-            setTimeout(tryGenerate, 100);
+            generateData();
             
             // Setup controls
             document.getElementById('kSlider').addEventListener('input', (e) => {
@@ -141,16 +130,11 @@
         function generateData() {
             dataPoints = [];
             
-            // Don't generate if canvas dimensions are invalid or too small
-            // This prevents issues during initial page load
-            if (width < 200 || height < 150) {
-                console.log('Canvas not ready, skipping data generation');
-                return;
-            }
-            
             // Scale positions based on canvas size
             let scaleX = width / 800;
             let scaleY = height / 600;
+            
+            console.log(`Generating data with canvas size: ${width}x${height}, scale: ${scaleX}x${scaleY}`);
             
             // Class A - Moved up and to the left, but still distinct
             for (let i = 0; i < 30; i++) {
@@ -167,9 +151,11 @@
             for (let i = 0; i < 30; i++) {
                 let x = randomGaussian(220 * scaleX, 80 * scaleX);
                 let y = randomGaussian(250 * scaleY, 80 * scaleY);
+                // Add 10% margin to prevent all points clustering at edges
+                let margin = 10;
                 dataPoints.push({
-                    x: constrain(x, 0, width),
-                    y: constrain(y, 0, height),
+                    x: constrain(x, margin, width - margin),
+                    y: constrain(y, margin, height - margin),
                     class: 'B',
                     color: COLORS.orange,
                     shape: 'square'
@@ -180,9 +166,11 @@
             for (let i = 0; i < 30; i++) {
                 let x = randomGaussian(240 * scaleX, 75 * scaleX);
                 let y = randomGaussian(370 * scaleY, 75 * scaleY);
+                // Add 10% margin to prevent all points clustering at edges
+                let margin = 10;
                 dataPoints.push({
-                    x: constrain(x, 0, width),
-                    y: constrain(y, 0, height),
+                    x: constrain(x, margin, width - margin),
+                    y: constrain(y, margin, height - margin),
                     class: 'C',
                     color: COLORS.green,
                     shape: 'triangle'
