@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Interactive KNN Classification Demo</title>
-    <link rel="stylesheet" href="../demo-styles.css">
+    <link rel="stylesheet" href="demo-styles.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
 </head>
 <body>
@@ -35,15 +35,15 @@
         <div class="legend">
             <div class="legend-item">
                 <div class="legend-symbol" style="background: #0173B2; border-color: #0173B2; border-radius: 50%;"></div>
-                <span>Class A (Circle)</span>
+                <span>Class A</span>
             </div>
             <div class="legend-item">
                 <div class="legend-symbol" style="background: #DE8F05; border-color: #DE8F05;"></div>
-                <span>Class B (Square)</span>
+                <span>Class B</span>
             </div>
             <div class="legend-item">
                 <div class="legend-symbol" style="background: #029E73; border-color: #029E73; clip-path: polygon(50% 0%, 100% 100%, 0% 100%);"></div>
-                <span>Class C (Triangle)</span>
+                <span>Class C</span>
             </div>
         </div>
     </div>
@@ -66,7 +66,16 @@
         let pulseOffset = 0; // For pulsing animation
 
         function setup() {
-            let canvas = createCanvas(800, 600);
+            // Make canvas responsive to screen size
+            let canvasWidth = min(800, windowWidth - 40); // 40px for padding
+            let canvasHeight = min(600, windowHeight * 0.6); // 60% of viewport height
+            
+            // Maintain aspect ratio
+            if (canvasWidth < 800) {
+                canvasHeight = canvasWidth * 0.75; // 4:3 aspect ratio
+            }
+            
+            let canvas = createCanvas(canvasWidth, canvasHeight);
             canvas.parent('canvasContainer');
             generateData();
             
@@ -87,28 +96,49 @@
                 classificationResult = null;
             });
         }
+        
+        // Redraw canvas on window resize
+        function windowResized() {
+            let canvasWidth = min(800, windowWidth - 40);
+            let canvasHeight = min(600, windowHeight * 0.6);
+            
+            if (canvasWidth < 800) {
+                canvasHeight = canvasWidth * 0.75;
+            }
+            
+            resizeCanvas(canvasWidth, canvasHeight);
+            // Regenerate data to fit new canvas size
+            generateData();
+            animatingPoint = null;
+            animationRadius = 0;
+            nearestNeighbors = [];
+        }
 
         function generateData() {
             dataPoints = [];
             
+            // Scale positions based on canvas size
+            let scaleX = width / 800;
+            let scaleY = height / 600;
+            
             // Class A - Moved up and to the left, but still distinct
             for (let i = 0; i < 30; i++) {
                 dataPoints.push({
-                    x: random(400, 650),  // Moved left from 500-750 to 400-650
-                    y: random(50, 300),   // Moved up from 150-400 to 50-300
+                    x: random(400 * scaleX, 650 * scaleX),
+                    y: random(50 * scaleY, 300 * scaleY),
                     class: 'A',
                     color: COLORS.blue,
                     shape: 'circle'
                 });
             }
             
-            // Class B - Centered around (220, 250) with large spread - moved up from 300
+            // Class B - Centered around (220, 250) with large spread
             for (let i = 0; i < 30; i++) {
-                let x = randomGaussian(220, 80);
-                let y = randomGaussian(250, 80);
+                let x = randomGaussian(220 * scaleX, 80 * scaleX);
+                let y = randomGaussian(250 * scaleY, 80 * scaleY);
                 dataPoints.push({
-                    x: constrain(x, 50, 450),
-                    y: constrain(y, 80, 500),
+                    x: constrain(x, 50 * scaleX, 450 * scaleX),
+                    y: constrain(y, 80 * scaleY, 500 * scaleY),
                     class: 'B',
                     color: COLORS.orange,
                     shape: 'square'
@@ -117,11 +147,11 @@
             
             // Class C - Centered around (240, 370) - overlapping with B but more separated
             for (let i = 0; i < 30; i++) {
-                let x = randomGaussian(240, 75);
-                let y = randomGaussian(370, 75);
+                let x = randomGaussian(240 * scaleX, 75 * scaleX);
+                let y = randomGaussian(370 * scaleY, 75 * scaleY);
                 dataPoints.push({
-                    x: constrain(x, 50, 450),
-                    y: constrain(y, 200, 550),
+                    x: constrain(x, 50 * scaleX, 450 * scaleX),
+                    y: constrain(y, 200 * scaleY, 550 * scaleY),
                     class: 'C',
                     color: COLORS.green,
                     shape: 'triangle'
